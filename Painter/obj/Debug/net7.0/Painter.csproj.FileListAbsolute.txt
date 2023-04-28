@@ -1,0 +1,15 @@
+D:\cs\Painter\Painter\bin\Debug\net7.0\Painter.exe
+D:\cs\Painter\Painter\bin\Debug\net7.0\Painter.deps.json
+D:\cs\Painter\Painter\bin\Debug\net7.0\Painter.runtimeconfig.json
+D:\cs\Painter\Painter\bin\Debug\net7.0\Painter.dll
+D:\cs\Painter\Painter\bin\Debug\net7.0\Painter.pdb
+D:\cs\Painter\Painter\obj\Debug\net7.0\Painter.csproj.AssemblyReference.cache
+D:\cs\Painter\Painter\obj\Debug\net7.0\Painter.GeneratedMSBuildEditorConfig.editorconfig
+D:\cs\Painter\Painter\obj\Debug\net7.0\Painter.AssemblyInfoInputs.cache
+D:\cs\Painter\Painter\obj\Debug\net7.0\Painter.AssemblyInfo.cs
+D:\cs\Painter\Painter\obj\Debug\net7.0\Painter.csproj.CoreCompileInputs.cache
+D:\cs\Painter\Painter\obj\Debug\net7.0\Painter.dll
+D:\cs\Painter\Painter\obj\Debug\net7.0\refint\Painter.dll
+D:\cs\Painter\Painter\obj\Debug\net7.0\Painter.pdb
+D:\cs\Painter\Painter\obj\Debug\net7.0\Painter.genruntimeconfig.cache
+D:\cs\Painter\Painter\obj\Debug\net7.0\ref\Painter.dll
