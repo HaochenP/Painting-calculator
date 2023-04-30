@@ -4,335 +4,219 @@ using System.Collections;
 
 namespace PaintCalculator
 {
+
     class Paint
     {
-        public string colour;
-        public float cost;
-        public float totalLitres = 0;
-        public float litresPerTin;
-        public SortedDictionary<float, float> TinSizes = new SortedDictionary<float, float>();
-        public IDictionary<float, float> TinUsage = new SortedDictionary<float, float>();
-        public Paint(string colourGiven)
-        {
-            colour = colourGiven;
+        public string colour { get; set; }
+        public float TotalLitres { get; set; }
+        public SortedDictionary<float, float> TinsSizes { get; set; }
 
+        public Paint(string colour)
+        {
+            this.colour = colour;
+            TinsSizes = new SortedDictionary<float, float>();
         }
 
-        public int numberOfTins()
+        public void AddTin(float size, float cost)
         {
-            float tins = totalLitres / litresPerTin;
-            return ((int)Math.Ceiling(tins));
+            TinsSizes.Add(size, cost);
         }
 
-        public void addTin(float size, float cost)
-        {
-            TinSizes.Add(size, cost);
-        }
-
-        public void outputTins()
-        {
-            foreach (KeyValuePair<float, float> kvp in TinSizes)
-            {
-                Console.WriteLine("Size {0}: ", kvp.Key);
-            }
-        }
-
-        public float calculateCombinations()
+        public float CalculateCombinations()
         {
             float totalCost = 0;
-            for (int i = TinSizes.Count - 1; i >= 0; i--)
+            float remainingLitres = TotalLitres;
+            foreach (var tin in TinsSizes.Reverse())
             {
-                int numberOfTins = 0;
-                while ((totalLitres > TinSizes.ElementAt(i).Key))
-                {
-                    numberOfTins += 1;
-                    totalLitres -= TinSizes.ElementAt(i).Key;
-                }
-                if (i == 0 && totalLitres > 0)
-                {
-                    numberOfTins += 1;
-                }
+                int numberOfTins = (int)Math.Floor(remainingLitres / tin.Key);
+                remainingLitres -= numberOfTins * tin.Key;
 
-                Console.WriteLine("You need {1} tin/tins at size of {0} ", TinSizes.ElementAt(i).Key, numberOfTins);
-                totalCost += (numberOfTins * TinSizes.ElementAt(i).Value);
+                Console.WriteLine("You need {1} tin/tins at size of {0} ", tin.Key, numberOfTins);
+                totalCost += numberOfTins * tin.Value;
             }
+
+            if (remainingLitres > 0)
+            {
+                Console.WriteLine("You need {1} tin/tins at size of {0} ", remainingLitres, 1);
+                totalCost += remainingLitres * TinsSizes.First().Value;
+            }
+
             Console.WriteLine("The overall cost for {0} paint is :{1}", colour, totalCost);
             return totalCost;
         }
 
-    }
 
 
-    class Program
-    {
 
 
-        static void Main(string[] args)
+
+
+
+
+
+        class Program
         {
-
-            //variable declaration
-            float doorWidth = 0, doorLength = 0;
-            float windowWidth = 0, windowLength = 0;
-            float paintPerLitre = 2.5f;
-            float wallWidth = 0, wallLength = 0;
-            int paintDoor = -1;
-            int coats = 0;
-            int walls = 0;
-            List<Paint> paints = new List<Paint>();
-            float totalCost = 0;
-            string paintColourName = "Yes";
-            float wallArea = wallWidth * wallLength;
-            float currentPaintCost;
-
-
-
-
-            // Number of walls
-            Console.WriteLine("Welcome to your paint app ");
-            
-
-
-            while (walls <= 0)
+            private static float GetPositiveFloat(string prompt)
             {
-                
-                try 
+                float input = 0;
+                bool valid = false;
+                while (!valid)
                 {
-                    Console.WriteLine("Please enter the number of walls you would like to paint, make sure it is a postive number :) :");
-                    walls = int.Parse(Console.ReadLine()); 
+                    Console.WriteLine(prompt);
+                    string inputString = Console.ReadLine();
+                    valid = float.TryParse(inputString, out input);
+                    if (!valid)
+                    {
+                        Console.WriteLine("Invalid input");
+                    }
+                    else if (input <= 0)
+                    {
+                        Console.WriteLine("Input must be greater than 0");
+                        valid = false;
+                    }
                 }
+                return input;
+            }
 
-                catch (Exception e) 
-                { 
-                    Console.WriteLine("Please enter a positive number :) : "); 
+            private static int GetPositiveInt(string prompt)
+            {
+                int input = 0;
+                bool valid = false;
+                while (!valid)
+                {
+                    Console.WriteLine(prompt);
+                    string inputString = Console.ReadLine();
+                    valid = int.TryParse(inputString, out input);
+                    if (!valid)
+                    {
+                        Console.WriteLine("Invalid input");
+                    }
+                    else if (input <= 0)
+                    {
+                        Console.WriteLine("Input must be greater than 0");
+                        valid = false;
+                    }
                 }
+                return input;
             }
 
 
+            private static float GetTotalArea(int count, string type)
+            {
+                float area = 0;
 
-            // Wall measurements
-            for (int i = 0; i < walls; i++)
+                float elementWidth = GetPositiveFloat("Please enter the width of  " + type + " " + count + " in meters: ");
+                float elementHeight = GetPositiveFloat("Please enter the height of " + type + " " + count + " in meters: ");
+                area += elementWidth * elementHeight;
+
+                return area;
+            }
+
+            private static int GetNonNegativeInt(string prompt)
+            {
+                int input = 0;
+                bool valid = false;
+                while (!valid)
+                {
+                    Console.WriteLine(prompt);
+                    string inputString = Console.ReadLine();
+                    valid = int.TryParse(inputString, out input);
+                    if (!valid)
+                    {
+                        Console.WriteLine("Invalid input");
+                    }
+                    else if (input < 0)
+                    {
+                        Console.WriteLine("Input must be greater than or equal to 0");
+                        valid = false;
+                    }
+                }
+                return input;
+            }
+
+            static void Main(string[] args)
             {
 
+                //variable declaration
+                List<Paint> paints = new List<Paint>();
+                float totalCost = 0;
 
-                Console.WriteLine("Please enter the width of the wall number {0} in meters: ", i + 1);
-                try { wallWidth = float.Parse(Console.ReadLine()); }
-                catch (Exception e) { Console.WriteLine(e.Message);}
 
-                while (wallWidth <= 0)
+
+                // Number of walls
+                Console.WriteLine("Welcome to your paint app ");
+
+                int wallCount = GetPositiveInt("Please enter the number of walls: ");
+
+                for (int i = 0; i < wallCount; i++)
                 {
-                    Console.WriteLine("Please enter a positive number :) : ");
-                    try { wallWidth = float.Parse(Console.ReadLine()); }
-                    catch (Exception e) { Console.WriteLine(e.Message); }
-                }
+                    Console.WriteLine("Wall number {0}", i + 1);
+                    float wallArea = GetTotalArea(i, "Wall");
 
 
-                while (wallLength <= 0)
-                {
-                    try 
+
+                    // Number of windows
+                    int windowCount = GetNonNegativeInt("Please enter the number of windows: ");
+                    for (int window = 0; window < windowCount; window++)
                     {
-                        Console.WriteLine("Please enter the length of the wall number {0} in meters: ", i + 1);
-                        wallLength = float.Parse(Console.ReadLine()); 
-                    }
-                    catch (Exception e) { Console.WriteLine("Please enter a correct value: "); }
-                }
-
-
-
-                wallArea = wallWidth * wallLength;
-                // Any doors in the way
-
-                Console.WriteLine("How many doors would you not want to paint on wall number {0}? Please enter 0 if none:", i + 1);
-                while (paintDoor < 0)
-                {
-                    try
-                    {
-                        paintDoor = int.Parse(Console.ReadLine());
-                    }
-                    catch
-                    {
-                        Console.WriteLine("Invalid input, please enter a correct value:");
-                    }
-                }
-
-
-                int x = 0;
-                while (x < paintDoor)
-                {
-                    Console.WriteLine("Please enter the width of the door in meters: ");
-                    try { doorWidth = float.Parse(Console.ReadLine()); }
-                    catch (Exception e) { Console.WriteLine(e.Message);}
-                    while (doorWidth < 0 || doorWidth> wallWidth)
-                    {
-                        Console.WriteLine("Please enter a correct value :) : ");
-                        try { doorWidth = float.Parse(Console.ReadLine()); }
-                        catch (Exception e) { Console.WriteLine(e.Message); }
+                        Console.WriteLine("Window number {0}", i + 1);
+                        float windowArea = GetTotalArea(window, "Window");
+                        wallArea -= windowArea;
                     }
 
-                    Console.WriteLine("Please enter the length of the door in meters: ");
-                    try { doorLength = float.Parse(Console.ReadLine()); }
-                    catch (Exception e) { Console.WriteLine(e.Message);}
-
-                    while (doorLength < 0 || doorLength > wallLength)
+                    // Number of doors
+                    int doorCount = GetNonNegativeInt("Please enter the number of doors: ");
+                    for (int door = 0; door < doorCount; door++)
                     {
-                        Console.WriteLine("Please enter a correct value :) : ");
-                        try { doorLength = float.Parse(Console.ReadLine());}
-                        catch (Exception e) { Console.WriteLine(e.Message);}
+                        Console.WriteLine("Door number {0}", door + 1);
+                        float doorArea = GetTotalArea(door, "Door");
+                        wallArea -= doorArea;
                     }
 
-                    wallArea -= doorWidth * doorLength;
-                    if (wallArea < 0)
+                    // Total area
+                    float totalArea = wallArea;
+                    Console.WriteLine("The total area to be painted is {0} meters squared", totalArea);
+
+                    // Paint
+                    int coats = GetPositiveInt("Please enter the number of coats: ");
+                    float paintNeeded = totalArea / 2.5f * coats;
+
+                    // Paint colours
+                    Console.WriteLine("Please enter the colour you would like to use: ");
+                    string colour = Console.ReadLine();
+
+                    Paint paint = paints.Find(p => p.colour == colour);
+                    if (paint == null)
                     {
-                        Console.WriteLine("The door is too big for the wall, please enter a correct measurement :) :");
-                        wallArea += doorWidth * doorLength;
-                        x--;
-                    }
-                    x++;
-                }
-
-
-
-                // Any windows in the way
-
-                Console.WriteLine("Please enter the number of windows that are in the way, if none just enter 0:  ");
-                int windows = int.Parse(Console.ReadLine());
-                x = 0;
-
-                while (x < windows)
-                {
-                    Console.WriteLine("Please enter the width of the window in meters: ");
-                    try { windowWidth = float.Parse(Console.ReadLine()); }
-                    catch (Exception e) { Console.WriteLine(e.Message); }
-                    while (windowWidth < 0 || windowWidth > wallWidth)
-                    {
-                        Console.WriteLine("Please enter a correct value :) : ");
-                        try { windowWidth = float.Parse(Console.ReadLine()); }
-                        catch (Exception e) { Console.WriteLine(e.Message); }
-                    }
-                    Console.WriteLine("Please enter the length of the window in meters: ");
-                    try { windowLength = float.Parse(Console.ReadLine()); }
-                    catch (Exception e) { Console.WriteLine(e.Message); }
-                    while (windowLength < 0 || windowLength > wallLength)
-                    {
-                        Console.WriteLine("Please enter a correct value :) : ");
-                        try { windowLength = float.Parse(Console.ReadLine()); }
-                        catch (Exception e) { Console.WriteLine(e.Message); }
-                    }
-                    wallArea -= windowWidth * windowLength;
-                    if (wallArea < 0)
-                    {
-                        Console.WriteLine("The window is too big for the wall, please enter a correct measurement :) : ");
-                        wallArea += windowWidth * windowLength;
-                        x--;
-                    }
-                    x++;
-                }
-
-              
-
-                // Number of coats
-                while (coats < 1)
-                {
-                    try { Console.WriteLine("Please enter the number of coats you would like to have for this wall: ");  
-                     coats = int.Parse(Console.ReadLine()); }
-                    catch (Exception e) { Console.WriteLine(e.Message); }
-                }
-
-
-
-                // Calculate the paint needed
-                float paintNeeded = (wallArea / paintPerLitre) * coats;
-
-
-
-                // Colour for the Paint for the wall
-                Console.WriteLine("Please enter the colour you want to paint the wall: ");
-                paintColourName = Console.ReadLine();
-                //Colour doesn't exist
-                if (paints.Count == 0)
-                {
-
-                    Paint colouredPaint = new Paint(paintColourName);
-                    Console.WriteLine("How many sizes of tin cans can you buy for this colour?  ");
-                    int numberOfSize = int.Parse(Console.ReadLine());
-
-                    for (int size = 0; size < numberOfSize; size++)
-                    {
-                        Console.WriteLine("Please enter the litres for this sized tin: ");
-                        float litresPerTin = float.Parse(Console.ReadLine());
-
-                        Console.WriteLine("Please enter the cost for this sized tin: ");
-                        currentPaintCost = float.Parse(Console.ReadLine());
-
-
-                        colouredPaint.addTin(litresPerTin, currentPaintCost);
-                    }
-
-                    paints.Add(colouredPaint);
-                    colouredPaint.totalLitres = paintNeeded;
-
-                }
-
-                else
-                {
-                    bool exist = false;
-                    foreach (var paint in paints)
-                    {
-                        //Colour already exist
-                        if (paint.colour == paintColourName)
+                        paint = new Paint(colour);
+                        int tinCount = GetPositiveInt("How many sizes of tins can you buy?: ");
+                        for (int x = 0; x < tinCount; x++)
                         {
-                            Console.WriteLine("It exists");
-                            paint.totalLitres += paintNeeded;
-                            Console.WriteLine(paint.totalLitres);
-                            exist = true;
-                        }
-
-                    }
-
-                    if (!exist)
-                    {
-
-                        Paint colouredPaint = new Paint(paintColourName);
-
-                        Console.WriteLine("How many sizes of tin cans can you buy for this colour? ");
-                        int numberOfSize = int.Parse(Console.ReadLine());
-
-                        for (int size = 0; size < numberOfSize; size++)
-                        {
-                            Console.WriteLine("Please enter the cost for this sized tin: ");
-                            currentPaintCost = float.Parse(Console.ReadLine());
-
-                            Console.WriteLine("Please enter the litres for this sized tin: ");
-                            float litresPerTin = float.Parse(Console.ReadLine());
-
-
-                            colouredPaint.addTin(currentPaintCost, litresPerTin);
+                            float size = GetPositiveFloat("Please enter the size of tin " + (x + 1) + " in litres: ");
+                            float cost = GetPositiveFloat("Please enter the cost of tin " + (x + 1) + " in pounds: ");
+                            paint.AddTin(size, cost);
                         }
 
 
-                        paints.Add(colouredPaint);
-                        colouredPaint.totalLitres = paintNeeded;
+                        paints.Add(paint);
                     }
-
-
+                    paint.TotalLitres += paintNeeded;
+                }
+                foreach (var paint in paints)
+                {
+                    Console.WriteLine("----------------");
+                    Console.WriteLine("The total litres of paint needed for {0} is {1}", paint.colour, paint.TotalLitres);
+                    float paintTotalCost = paint.CalculateCombinations();
+                    Console.WriteLine("Total cost for {0} paint is {1}", paint.colour, paintTotalCost);
+                    totalCost += paintTotalCost;
+                    Console.WriteLine("----------------");
 
                 }
+                Console.WriteLine("The total cost for all paints is {0}", totalCost);
 
 
-            }
-            // Output for each paint and cost
-            foreach (var paint in paints)
-            {
-                Console.WriteLine("----------------");
-                Console.WriteLine("The total litres of paint needed for {0} is {1}", paint.colour, paint.totalLitres);
-                float paintTotalCost = paint.calculateCombinations();
-
-                Console.WriteLine("Total cost for {0} paint is {1}", paint.colour, paintTotalCost);
-                totalCost += paintTotalCost;
-                Console.WriteLine("----------------");
 
             }
-            Console.WriteLine("----------------");
-            Console.WriteLine("The total cost of all the walls are: " + totalCost.ToString("#.##"));
         }
     }
 }
